@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { logInAsDemoCustomer } from './support/auth.helpers';
-import { gotoTransferFundsReady, transferFundsViaUi } from './support/journey-steps';
+import { gotoTransferFundsReady, transferFundsViaUi } from './support/parabank-flow.helpers';
 
 test.describe('Transfer funds', () => {
   test(

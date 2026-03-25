@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { resetDemoDatabase } from './support/db.helpers';
-import { generateRegistrationUsername, registerNewUserViaUi } from './support/journey-steps';
+import { generateRegistrationUsername, registerNewUserViaUi } from './support/parabank-flow.helpers';
 
 test.describe('Register new user', () => {
   test(

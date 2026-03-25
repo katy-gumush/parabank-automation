@@ -4,7 +4,7 @@
  */
 import { test, expect } from '@playwright/test';
 import { DEMO_USER } from './support/parabank.constants';
-import { logInAsDemoCustomerWithOverviewHeading } from './support/journey-steps';
+import { logInAsDemoCustomerWithOverviewHeading } from './support/parabank-flow.helpers';
 
 test.describe('Login', () => {
   test(

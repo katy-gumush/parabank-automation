@@ -215,7 +215,7 @@
         <li><span class="file">tests/e2e/support/parabank.constants.ts</span> — כתובות, מזהי דמו, עזרי פרסור XML.</li>
         <li><span class="file">tests/e2e/support/api-assertions.ts</span> — פונקציות <code>expect*</code> למפתחי סטטוס, מבנה XML, הודעות העברה.</li>
         <li><span class="file">tests/e2e/support/db.helpers.ts</span> — <code>resetDemoDatabase</code> (cleanDB + initializeDB עם קוד 204).</li>
-        <li><span class="file">tests/e2e/support/journey-steps.ts</span> — צעדי עסק אמיתיים (רישום, curl, העברה ב־UI, בדיקות API משותפות) — <strong>מקור יחיד לאמת</strong> בין E2E לטסטים קטנים.</li>
+        <li><span class="file">tests/e2e/support/parabank-flow.helpers.ts</span> — צעדי עסק אמיתיים (רישום, curl, העברה ב־UI, בדיקות API משותפות) — <strong>מקור יחיד לאמת</strong> בין E2E לטסטים קטנים.</li>
         <li><span class="file">tests/e2e/support/auth.helpers.ts</span> — התחברות דמו קצרה.</li>
         <li><span class="file">global-setup.ts</span> — איפוס לפני כל הרצת סוויטה (הכנת סביבה יציבה).</li>
       </ul>
@@ -265,7 +265,7 @@
     <section class="panel" id="panel-why" role="tabpanel" aria-labelledby="tab-why" hidden>
       <h2>למה בחרנו בשיטה הזו ולא באחרת?</h2>
 
-      <h3>1. <code>journey-steps.ts</code> + טסטים דקים</h3>
+      <h3>1. <code>parabank-flow.helpers.ts</code> + טסטים דקים</h3>
       <p>
         <strong>חלופה:</strong> להעתיק את אותו קוד UI/API לכל קובץ spec.<br />
         <strong>בחירה:</strong> לוגיקה משותפת במקום אחד, והקבצים המפוזרים רק <strong>קוראים</strong> לפונקציות.<br />

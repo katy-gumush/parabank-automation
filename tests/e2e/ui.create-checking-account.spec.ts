@@ -4,7 +4,7 @@ import { resetDemoDatabase } from './support/db.helpers';
 import {
   createCheckingAccountViaCurl,
   verifyNewAccountLinkOnOverview,
-} from './support/journey-steps';
+} from './support/parabank-flow.helpers';
 
 test.describe('Create CHECKING account (curl + UI)', () => {
   test(

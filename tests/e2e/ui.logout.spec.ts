@@ -3,7 +3,7 @@ import { logInAsDemoCustomer } from './support/auth.helpers';
 import {
   assertWelcomeBannerCleared,
   logOutViaLinkExpectLoginUi,
-} from './support/journey-steps';
+} from './support/parabank-flow.helpers';
 
 test.describe('Logout', () => {
   test(

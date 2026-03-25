@@ -1,3 +1,8 @@
+/**
+ * ParaBank reusable test flows: shared UI actions (register, login, transfer, logout), API
+ * checks, curl-based account creation, and balance assertions. The full banking journey and
+ * smaller component specs import from here so the same steps stay the single source of truth.
+ */
 import { execSync } from 'node:child_process';
 import { randomInt } from 'crypto';
 import { expect } from '@playwright/test';
@@ -174,7 +179,6 @@ export async function getTransferBaselineBalances(request: APIRequestContext): P
 
 /**
  * UI transfer flow: waits for account options, submits transfer, asserts completion heading.
- * @param assertResultPanel — also assert `#showResult` mentions both account ids (component test bar).
  */
 export async function transferFundsViaUi(
   page: Page,

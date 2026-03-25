@@ -16,7 +16,7 @@ import {
   registerNewUserViaUi,
   transferFundsViaUi,
   verifyNewAccountLinkOnOverview,
-} from './support/journey-steps';
+} from './support/parabank-flow.helpers';
 
 test.describe.serial('Core banking E2E', () => {
   test('full scenario from objectives/playwright.txt', async ({ page, request }) => {

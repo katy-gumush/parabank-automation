@@ -8,7 +8,7 @@ import {
   assertBalancesAfterTransfer,
   getTransferBaselineBalances,
   postTransferApi,
-} from './support/journey-steps';
+} from './support/parabank-flow.helpers';
 
 test.describe('Account balances (API)', { tag: '@component' }, () => {
   test('transfer updates balances', async ({ request }) => {
