@@ -17,8 +17,9 @@ import {
 } from './parabank.constants';
 import {
   expect2xxWithStatus,
-  expectAccountXmlStructure,
+  expectAccountXmlMatchesSeededChecking,
   expectAccountsListXmlStructure,
+  expectCreateAccountXmlIsChecking,
   expectCustomerXmlStructure,
   expectTransferSuccessMessage,
   expectXmlPayload,
@@ -121,9 +122,7 @@ export async function expectExistingAccount12345ViaApi(request: APIRequestContex
   expect2xxWithStatus(res, HttpStatus.OK, `GET accounts/${DEMO_SEEDED_ACCOUNT_ID}`);
   const body = await res.text();
   expectXmlPayload(body);
-  expectAccountXmlStructure(body);
-  expect(body).toContain(`<id>${DEMO_SEEDED_ACCOUNT_ID}</id>`);
-  expect(body).toContain('CHECKING');
+  expectAccountXmlMatchesSeededChecking(body, DEMO_SEEDED_ACCOUNT_ID, DEMO_CUSTOMER_ID);
 }
 
 /** POST createAccount via curl (homework requirement). Returns new account id. */
@@ -132,9 +131,13 @@ export function createCheckingAccountViaCurl(): string {
   const createXml = execSync(`curl -sS -X POST ${JSON.stringify(createUrl)}`, {
     encoding: 'utf-8',
   });
-  if (!createXml.includes('<type>CHECKING</type>')) {
+  try {
+    expectCreateAccountXmlIsChecking(createXml);
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e);
     throw new Error(
-      `createAccount(fromAccountId=${DEMO_FUNDING_ACCOUNT_ID}) expected CHECKING XML; got: ${createXml.slice(0, 500)}`,
+      `createAccount(fromAccountId=${DEMO_FUNDING_ACCOUNT_ID}) expected CHECKING XML (${reason}); snippet: ${createXml.slice(0, 500)}`,
+      { cause: e },
     );
   }
   return firstXmlId(createXml);

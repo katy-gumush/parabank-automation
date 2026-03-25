@@ -11,8 +11,10 @@ import {
 import { resetDemoDatabase } from './support/db.helpers';
 import {
   expect2xxWithStatus,
-  expectAccountXmlStructure,
+  expectAccountXmlMatchesSeededChecking,
+  expectAccountsListXmlHasCheckingAndCustomer,
   expectAccountsListXmlStructure,
+  expectCustomerXmlHasNames,
   expectCustomerXmlStructure,
   expectHttpStatus,
   expectXmlPayload,
@@ -45,8 +47,7 @@ test.describe('ParaBank API', { tag: '@component' }, () => {
       expectXmlPayload(body);
       expectCustomerXmlStructure(body);
       expect(firstXmlId(body)).toBe(String(DEMO_CUSTOMER_ID));
-      expect(body).toContain('<firstName>John</firstName>');
-      expect(body).toContain('<lastName>Smith</lastName>');
+      expectCustomerXmlHasNames(body, 'John', 'Smith');
     });
 
     test(`customer details for seeded demo customer (${DEMO_CUSTOMER_ID})`, async ({ request }) => {
@@ -55,8 +56,7 @@ test.describe('ParaBank API', { tag: '@component' }, () => {
       const body = await res.text();
       expectXmlPayload(body);
       expectCustomerXmlStructure(body);
-      expect(body).toContain('John');
-      expect(body).toContain('Smith');
+      expectCustomerXmlHasNames(body, 'John', 'Smith');
     });
 
     test.describe('errors', { tag: '@negative' }, () => {
@@ -99,8 +99,7 @@ test.describe('ParaBank API', { tag: '@component' }, () => {
       const body = await res.text();
       expectXmlPayload(body);
       expectAccountsListXmlStructure(body);
-      expect(body).toContain('<type>CHECKING</type>');
-      expect(body).toContain(`<customerId>${DEMO_CUSTOMER_ID}</customerId>`);
+      expectAccountsListXmlHasCheckingAndCustomer(body, DEMO_CUSTOMER_ID);
     });
 
     test(`get account by id (${DEMO_SEEDED_ACCOUNT_ID})`, async ({ request }) => {
@@ -110,10 +109,7 @@ test.describe('ParaBank API', { tag: '@component' }, () => {
       expect2xxWithStatus(res, HttpStatus.OK, 'GET account');
       const body = await res.text();
       expectXmlPayload(body);
-      expectAccountXmlStructure(body);
-      expect(body).toContain(`<id>${DEMO_SEEDED_ACCOUNT_ID}</id>`);
-      expect(body).toContain('CHECKING');
-      expect(body).toContain(String(DEMO_CUSTOMER_ID));
+      expectAccountXmlMatchesSeededChecking(body, DEMO_SEEDED_ACCOUNT_ID, DEMO_CUSTOMER_ID);
     });
 
     test.describe('errors', { tag: '@negative' }, () => {

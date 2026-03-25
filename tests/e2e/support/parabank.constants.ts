@@ -52,6 +52,15 @@ const parabankXmlParser = new XMLParser({
   parseTagValue: true,
 });
 
+/** Parse ParaBank XML API bodies with the same options as `firstXmlId` / accounts helpers. */
+export function parseParabankXml(xml: string): unknown {
+  try {
+    return parabankXmlParser.parse(xml);
+  } catch (e) {
+    throw new Error(`Invalid XML: ${e instanceof Error ? e.message : String(e)}`, { cause: e });
+  }
+}
+
 function deepFirstId(node: unknown): string | undefined {
   if (node === null || node === undefined) {
     return undefined;
@@ -83,12 +92,7 @@ function deepFirstId(node: unknown): string | undefined {
 
 /** First `id` in document order (login/customer XML, single `account` from `createAccount`, etc.). */
 export function firstXmlId(xml: string): string {
-  let parsed: unknown;
-  try {
-    parsed = parabankXmlParser.parse(xml);
-  } catch {
-    throw new Error('Invalid XML');
-  }
+  const parsed = parseParabankXml(xml);
   const id = deepFirstId(parsed);
   if (id === undefined) {
     throw new Error('No <id> found in XML');
@@ -96,9 +100,10 @@ export function firstXmlId(xml: string): string {
   return id;
 }
 
-type AccountRow = Record<string, unknown>;
+/** One `<account>` row from `GET /customers/{id}/accounts` XML (after `fast-xml-parser`). */
+export type ParabankAccountRow = Record<string, unknown>;
 
-function accountRowsFromParsed(root: unknown): AccountRow[] {
+function accountRowsFromParsed(root: unknown): ParabankAccountRow[] {
   if (root === null || typeof root !== 'object') {
     return [];
   }
@@ -111,22 +116,28 @@ function accountRowsFromParsed(root: unknown): AccountRow[] {
   if (acc === undefined) {
     return [];
   }
-  return Array.isArray(acc) ? (acc as AccountRow[]) : [acc as AccountRow];
+  return Array.isArray(acc) ? (acc as ParabankAccountRow[]) : [acc as ParabankAccountRow];
+}
+
+/** Account rows from customer accounts list XML (`<accounts><account>…`). */
+export function accountRowsFromAccountsXml(xml: string): ParabankAccountRow[] {
+  const parsed = parseParabankXml(xml);
+  return accountRowsFromParsed(parsed);
 }
 
 /** Parses account list from `GET /customers/{id}/accounts` XML into id → balance. */
 export function balancesByAccountIdFromAccountsXml(xml: string): Map<string, number> {
   const map = new Map<string, number>();
-  let parsed: unknown;
+  let rows: ParabankAccountRow[];
   try {
-    parsed = parabankXmlParser.parse(xml);
+    rows = accountRowsFromAccountsXml(xml);
   } catch (e) {
     throw new Error(
       `Failed to parse accounts XML: ${e instanceof Error ? e.message : String(e)}`,
       { cause: e },
     );
   }
-  for (const row of accountRowsFromParsed(parsed)) {
+  for (const row of rows) {
     if (row.id === undefined || row.balance === undefined) {
       continue;
     }
