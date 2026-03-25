@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>מדריך פרויקט בדיקות ParaBank — Playwright</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --surface: #fff;
+      --text: #1a1d26;
+      --muted: #5c6370;
+      --accent: #1e6f5c;
+      --accent-light: #e3f2ee;
+      --border: #dfe3ec;
+      --tab-inactive: #eef1f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", "Rubik", "Heebo", "Arial Hebrew", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      line-height: 1.65;
+      font-size: 1.02rem;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    header {
+      background: linear-gradient(135deg, var(--accent) 0%, #2a9180 100%);
+      color: #fff;
+      padding: 2rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 { margin: 0 0 0.5rem; font-size: 1.65rem; font-weight: 700; }
+    header p { margin: 0; opacity: 0.95; max-width: 52rem; }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .tabs button {
+      font: inherit;
+      padding: 0.65rem 1.1rem;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      background: var(--tab-inactive);
+      color: var(--text);
+      cursor: pointer;
+      margin-bottom: -2px;
+    }
+    .tabs button:hover { background: #e4e9f2; }
+    .tabs button[aria-selected="true"] {
+      background: var(--surface);
+      border-bottom: 2px solid var(--surface);
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      padding: 1.35rem 1.5rem 1.75rem;
+      box-shadow: 0 8px 24px rgba(26, 29, 38, 0.06);
+    }
+    .panel.active { display: block; }
+    h2 {
+      font-size: 1.2rem;
+      margin: 1.35rem 0 0.75rem;
+      color: var(--accent);
+      border-right: 4px solid var(--accent-light);
+      padding-right: 0.6rem;
+    }
+    h2:first-child { margin-top: 0; }
+    h3 { font-size: 1.05rem; margin: 1rem 0 0.5rem; color: var(--text); }
+    p { margin: 0.6rem 0; color: var(--text); }
+    ul, ol { margin: 0.5rem 0; padding-right: 1.35rem; }
+    li { margin: 0.35rem 0; }
+    code, .file {
+      font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+      font-size: 0.9em;
+      background: var(--accent-light);
+      color: #0d3d33;
+      padding: 0.12rem 0.4rem;
+      border-radius: 4px;
+    }
+    pre {
+      direction: ltr;
+      text-align: left;
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem 1.1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin: 0.75rem 0;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+    .note {
+      background: #fff8e6;
+      border-right: 4px solid #e6a800;
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+    .muted { color: var(--muted); font-size: 0.95rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.65rem;
+      text-align: right;
+    }
+    th { background: var(--accent-light); color: #0d3d33; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="max-width: 920px;">
+      <h1>מדריך הפרויקט — אוטומציית ParaBank ב־Playwright</h1>
+      <p>תיעוד בעברית להכנה לראיון / הצגה: מבנה, הרצה, קונפיגורציה, סימונים (אנוטציות), והגיון ארכיטקטוני.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="tabs" role="tablist" aria-label="מקטעי המדריך">
+      <button type="button" role="tab" id="tab-intro" aria-controls="panel-intro" aria-selected="true">מבוא והמטרה</button>
+      <button type="button" role="tab" id="tab-run" aria-controls="panel-run" aria-selected="false">איך מריצים</button>
+      <button type="button" role="tab" id="tab-check" aria-controls="panel-check" aria-selected="false">מה בודקים</button>
+      <button type="button" role="tab" id="tab-structure" aria-controls="panel-structure" aria-selected="false">מבנה וקבצים</button>
+      <button type="button" role="tab" id="tab-config" aria-controls="panel-config" aria-selected="false">קונפיגורציה</button>
+      <button type="button" role="tab" id="tab-annotations" aria-controls="panel-annotations" aria-selected="false">אנוטציות וסימונים</button>
+      <button type="button" role="tab" id="tab-why" aria-controls="panel-why" aria-selected="false">למה השיטה הזו</button>
+    </div>
+
+    <section class="panel active" id="panel-intro" role="tabpanel" aria-labelledby="tab-intro">
+      <h2>מטרת הפרויקט</h2>
+      <p>
+        הפרויקט הוא <strong>מסגרת בדיקות מוכנה לייצור</strong> סביב אתר הדמו <strong>ParaBank</strong>
+        (<a href="https://parabank.parasoft.com/parabank" style="color: var(--accent);">parabank.parasoft.com</a>):
+        תרחישי UI, API, וזרימת קצה־לקצה (E2E) לפי מסמך הדרישות ב־<span class="file">objectives/playwright.txt</span>.
+      </p>
+      <p>שורת היעד מהמטלה (באנגלית, לתרגום רעיוני):</p>
+      <blockquote class="note" style="border-right-color: var(--accent); background: var(--accent-light);">
+        «כל ה־assertions חייבים לאמת: ולידציה, קודי סטטוס, מבנה תגובה, עקביות UI, נכונות נתונים»
+      </blockquote>
+      <p>
+        את המיפוי המעשי לאותם עקרונות רואים ב־<span class="file">tests/e2e/support/api-assertions.ts</span>
+        וב־<span class="file">objectives/assertion-strategy.md</span> (באנגלית).
+      </p>
+    </section>
+
+    <section class="panel" id="panel-run" role="tabpanel" aria-labelledby="tab-run" hidden>
+      <h2>פקודות הרצה (<span class="file">package.json</span>)</h2>
+      <table>
+        <thead>
+          <tr><th>פקודה</th><th>משמעות</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>npm run test:e2e</code></td><td><strong>זרימת הבנק המלאה</strong> לפי המטלה — קובץ יחיד (<span class="file">e2e.banking-journey.spec.ts</span>). מתאים כ־«שער» ב־CI לתרחיש העיקרי.</td></tr>
+          <tr><td><code>npm test</code></td><td>כל הבדיקות תחת <span class="file">tests/e2e</span> — ה־E2E + כל הטסטים המתויגים וכו׳.</td></tr>
+          <tr><td><code>npm run test:api</code></td><td>רק בדיקות API: OpenAPI, לוגין, חשבונות, יתרות אחרי העברה.</td></tr>
+          <tr><td><code>npm run test:component</code></td><td>רק טסטים שסומנו ב־<code>@component</code> — נוח לדיבוג חלקי בלי להריץ את כל הסוויטה.</td></tr>
+          <tr><td><code>npm run test:ui</code></td><td>ממשק Playwright האינטראקטיבי (<code>--ui</code>) — בחירת טסטים, צפייה בריצה.</td></tr>
+          <tr><td><code>npm run test:debug</code></td><td>דיבוג צעד־אחר־צעד (<code>--debug</code>).</td></tr>
+          <tr><td><code>npm run report</code></td><td>פתיחת דוח HTML אחרי ריצה (<code>show-report</code>).</td></tr>
+        </tbody>
+      </table>
+      <h3>דפדפנים</h3>
+      <p>בהתקנה ראשונה (או אחרי עדכון Playwright) יש להריץ מהשורש:</p>
+      <pre><code>npx playwright install</code></pre>
+      <p class="muted">בלי דפדפן מותקן, טסטים שדורשים דפדפן ייכשלו עם הודעה על חסר executable.</p>
+    </section>
+
+    <section class="panel" id="panel-check" role="tabpanel" aria-labelledby="tab-check" hidden>
+      <h2>תרחיש ה־E2E המרכזי</h2>
+      <p>בקובץ <span class="file">tests/e2e/e2e.banking-journey.spec.ts</span> מבוטאת הרצף:</p>
+      <ol>
+        <li>איפוס מדאטה־בייס הדמו (API)</li>
+        <li>רישום משתמש חדש (UI)</li>
+        <li>התנתקות</li>
+        <li>התחברות כמשתמש הדמו <code>john/demo</code> (UI)</li>
+        <li>קבלת מזהה לקוח דרך API</li>
+        <li>משיכת חשבון קיים (API, לדוגמה חשבון 12345)</li>
+        <li>יצירת חשבון CHECKING ב־<strong>curl</strong> (כפי שנדרש במטלה)</li>
+        <li>וידוא שהחשבון החדש מופיע ב־UI (סקירת חשבונות)</li>
+        <li>העברת כספים בין חשבונות (UI)</li>
+        <li>אימות יתרות מעודכנות (API)</li>
+        <li>התנתקות (UI)</li>
+      </ol>
+      <h2>בדיקות נוספות</h2>
+      <ul>
+        <li><strong>API</strong> — <span class="file">api.parabank.spec.ts</span>: YAML של OpenAPI, XML של לקוח/חשבונות, מבנה תגובה.</li>
+        <li><strong>יתרות</strong> — <span class="file">api.balances.spec.ts</span>: העברה ב־API ושינוי יתרות מספרי.</li>
+        <li><strong>UI ממוקד</strong> — דף בית, התחברות, הרשמה, יציאה, העברה, יצירת חשבון (רבים מתויגים <code>@component</code>).</li>
+      </ul>
+      <p>
+        כל שלב ב־E2E עטוף ב־<code>test.step</code> כדי שדוח ה־HTML של Playwright יציג <strong>שלבים מתועדים</strong> (קל יותר להסביר בראיון מה נכשל).
+      </p>
+    </section>
+
+    <section class="panel" id="panel-structure" role="tabpanel" aria-labelledby="tab-structure" hidden>
+      <h2>עץ לוגי של התמיכה בבדיקות</h2>
+      <ul>
+        <li><span class="file">tests/e2e/support/parabank.constants.ts</span> — כתובות, מזהי דמו, עזרי פרסור XML.</li>
+        <li><span class="file">tests/e2e/support/api-assertions.ts</span> — פונקציות <code>expect*</code> למפתחי סטטוס, מבנה XML, הודעות העברה.</li>
+        <li><span class="file">tests/e2e/support/db.helpers.ts</span> — <code>resetDemoDatabase</code> (cleanDB + initializeDB עם קוד 204).</li>
+        <li><span class="file">tests/e2e/support/journey-steps.ts</span> — צעדי עסק אמיתיים (רישום, curl, העברה ב־UI, בדיקות API משותפות) — <strong>מקור יחיד לאמת</strong> בין E2E לטסטים קטנים.</li>
+        <li><span class="file">tests/e2e/support/auth.helpers.ts</span> — התחברות דמו קצרה.</li>
+        <li><span class="file">global-setup.ts</span> — איפוס לפני כל הרצת סוויטה (הכנת סביבה יציבה).</li>
+      </ul>
+      <p class="muted">ניתן גם קישורי re-export תחת <span class="file">tests/support/</span> אם מייבאים מנתיב <span class="file">tests/</span> ולא מ־<span class="file">tests/e2e/</span>.</p>
+    </section>
+
+    <section class="panel" id="panel-config" role="tabpanel" aria-labelledby="tab-config" hidden>
+      <h2><span class="file">playwright.config.ts</span> — הנקודות החשובות</h2>
+      <ul>
+        <li><strong><code>testDir: './tests/e2e'</code></strong> — כל קבצי ה־spec נמצאים שם.</li>
+        <li><strong><code>globalSetup</code></strong> — טוען את <span class="file">global-setup.ts</span> לאיפוס ParaBank לפני הריצה.</li>
+        <li><strong><code>fullyParallel: true</code></strong> — מקביליות ברמת הקבצים; בתוך תרחישים שצריכים סדר (כמו ה־describe הסיריאלי ב־E2E) Playwright מכבד <code>serial</code>.</li>
+        <li><strong><code>use.baseURL</code></strong> — <code>https://parabank.parasoft.com</code> כך ש־<code>page.goto('/parabank/...')</code> יחובר לאתר האמיתי.</li>
+        <li><strong><code>use.trace: 'on-first-retry'</code></strong> — טרייס בכישלון אחרי retry (חוסך מקום בדרך כלל).</li>
+        <li><strong><code>projects</code></strong> — כרגע מופעל <strong>Chromium</strong> בלבד; Firefox/WebKit מושבתים בהערות.</li>
+        <li><strong>CI</strong> — <code>forbidOnly</code>, <code>retries</code>, <code>workers</code> מותנים ב־<code>process.env.CI</code>.</li>
+      </ul>
+    </section>
+
+    <section class="panel" id="panel-annotations" role="tabpanel" aria-labelledby="tab-annotations" hidden>
+      <h2>איזה «אנוטציות» בשימוש (ובפירוט טכני)</h2>
+      <h3>תג <code>@component</code> (Playwright)</h3>
+      <p>
+        מוגדר על טסטים או על <code>test.describe</code> — בפרויקט משמש לסמן <strong>פרוסות עצמאית</strong> (רישום, התחברות, API וכו׳)
+        שניתן להריץ יחד עם <code>npm run test:component</code> (<code>--grep @component</code>).
+      </p>
+      <p><strong>לא</strong> נתנו תג כזה לזרימת ה־E2E המלאה — כדי שיהיה ברור מהו «שער» אחד (<code>test:e2e</code>) בלי לבלבל עם מסנני תגים.</p>
+
+      <h3><code>test.describe.serial</code></h3>
+      <p>
+        בתוך הקובץ של הזרימה המלאה, ה־describe מסומן כסיריאלי. בפועל יש טסט אחד שמכיל את כל הצעדים (עם <code>test.step</code>), כך שהסדר נשמר והבלבול של טסטים מקבילים על אותו דמו מצומצם.
+      </p>
+
+      <h3><code>test.step('שם', async () =&gt; { ... })</code></h3>
+      <p>
+        <strong>אינו</strong> אנוטציה של TypeScript — זה API של Playwright שמוסיף <strong>שכבת דיווח</strong> בתוך טסט יחיד:
+        בדוח רואים אילו שלבים עברו לפני כישלון (נוח לראיון ול־Root Cause).
+      </p>
+
+      <h3>הערות JSDoc (<code>/** ... */</code>)</h3>
+      <p>
+        ב־<span class="file">api-assertions.ts</span> ובקבצי spec נוספים — מפנות למסמכי <span class="file">objectives/assertion-strategy.md</span>.
+        אלו לא משנות התנהגות בזמן ריצה; הן תיעוד למפתח.
+      </p>
+    </section>
+
+    <section class="panel" id="panel-why" role="tabpanel" aria-labelledby="tab-why" hidden>
+      <h2>למה בחרנו בשיטה הזו ולא באחרת?</h2>
+
+      <h3>1. <code>journey-steps.ts</code> + טסטים דקים</h3>
+      <p>
+        <strong>חלופה:</strong> להעתיק את אותו קוד UI/API לכל קובץ spec.<br />
+        <strong>בחירה:</strong> לוגיקה משותפת במקום אחד, והקבצים המפוזרים רק <strong>קוראים</strong> לפונקציות.<br />
+        <strong>סיבה:</strong> תחזוקה אחת כשהאתר משתנה; פחות סתירות בין E2E לבדיקות משנה; עדיין אפשר להריץ פרוסות עם <code>@component</code>.
+      </p>
+
+      <h3>2. תג <code>@component</code> + <code>--grep</code> במקום פרויקטים כפולים ב־config</h3>
+      <p>
+        <strong>חלופה:</strong> מספר <code>projects</code> ב־Playwright (למשל «מלא» מול «מצומצם»).<br />
+        <strong>בחירה:</strong> תג אחיד וסקריפט npm פשוט.<br />
+        <strong>סיבה:</strong> פחות כפילות בהגדרות דפדפן; קל להסביר; שינוי מינימלי ב־<span class="file">playwright.config.ts</span>.
+      </p>
+
+      <h3>3. <code>test.step</code> בתוך טסט E2E אחד (ולא שרשרת של 10 טסטים סיריאליים)</h3>
+      <p>
+        <strong>חלופה:</strong> 10 פונקציות <code>test()</code> סיריאליות עם מצב משותף.<br />
+        <strong>בחירה:</strong> טסט אחד אטומי מבחינת «האם הזרימה הושלמה», עם שלבים לדוח.<br />
+        <strong>סיבה:</strong> בתרחיש בנקאי קשה לפרק לטסטים נפרדים בלי להריץ איפוס DB ביניהם או לסמוך על סטייט דפדפן בין קבצים — טסט אחד מבטא טוב יותר <strong>story אחת</strong> end-to-end.
+      </p>
+
+      <h3>4. <code>globalSetup</code> + <code>resetDemoDatabase</code> בטסטים שצריכים מצב ידוע</h3>
+      <p>
+        <strong>סיבה:</strong> ParaBank הוא דמו משותף; איפוס לפני ריצה ולפני טסטים רגישים מפחית ריצות הפיכות עקב זיהום מצב מריצות קודמות.
+      </p>
+
+      <h3>5. העדפת <code>expect2xxWithStatus</code> ומבני XML</h3>
+      <p>
+        במקום <code>res.ok()</code> בלבד — כדי לעמוד במפורש בדרישת <strong>קוד סטטוס</strong> ו<strong>מבנה תגובה</strong> מהמטלה ולתעד זאת בראיון.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+      var panels = [].slice.call(document.querySelectorAll('[role="tabpanel"]'));
+
+      function activate(id) {
+        tabs.forEach(function (t) {
+          var on = t.id === id;
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+        });
+        panels.forEach(function (p) {
+          var show = p.id === document.getElementById(id).getAttribute('aria-controls');
+          p.classList.toggle('active', show);
+          p.hidden = !show;
+        });
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () { activate(tab.id); });
+        tab.addEventListener('keydown', function (e) {
+          var i = tabs.indexOf(tab);
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            var next = e.key === 'ArrowRight' ? (i - 1 + tabs.length) % tabs.length : (i + 1) % tabs.length;
+            tabs[next].focus();
+            activate(tabs[next].id);
+          }
+        });
+      });
+
+      activate('tab-intro');
+    })();
+  </script>
+</body>
+</html>

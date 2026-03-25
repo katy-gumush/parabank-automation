@@ -1,0 +1,15 @@
+Objective
+Build a production-ready Playwright automation framework that validates core banking workflows.
+
+Core Banking Flow (End-to-End)
+Automate this full scenario:
+Register new user (UI)
+Login (UI)
+Get customer ID (API)
+Get existing account (API)
+Create new CHECKING account (using curl command)
+Verify new account appears in UI
+Transfer money between accounts (UI)
+Validate updated balances (API)
+Logout
+All assertions must validate, status codes, response structure, UI consistency, Data correctness
